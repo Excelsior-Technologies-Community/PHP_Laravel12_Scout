@@ -1,59 +1,295 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PHP_Laravel12_Scout
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Step 1 : Install  Laravel 12 
+```php
+ composer create-project laravel/laravel PHP_Laravel12_Scout
+```
+# Step 2: Database Setup for .env file
+```php
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=test
+DB_USERNAME=root
+DB_PASSWORD=
+```
+# Step 3: Install Laravel Scout
+```
+composer require laravel/scout
+```
+# Step 4: Publish Scout Config
+```php
+php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
+```
+# config/scout.php open and update this method
+```php
+'driver' => 'database',
+```
+# Step 5: Create Products Table
+```php
+<?php
 
-## About Laravel
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('products', function (Blueprint $table) {
+            $table->id();
+             $table->string('name');
+        $table->text('description')->nullable();
+        $table->decimal('price',10,2);
+            $table->timestamps();
+        });
+    }
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('products');
+    }
+};
+```
+# Step 5: Create Products Model
+```php
+<?php
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+namespace App\Models;
 
-## Learning Laravel
+use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+class Product extends Model
+{
+    use Searchable;
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+    ];
+}
+```
+# Step 6: Create Products Controller
+```php
+<?php
 
-## Laravel Sponsors
+namespace App\Http\Controllers;
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+use App\Models\Product;
+use Illuminate\Http\Request;
 
-### Premium Partners
+class ProductController extends Controller
+{
+    // Show Add Product Form
+    public function create()
+    {
+        return view('products.create');
+    }
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+    // Store Product
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'price' => 'required|numeric'
+        ]);
 
-## Contributing
+        Product::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price
+        ]);
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+        return redirect()->route('products.list')
+            ->with('success', 'Product Added Successfully!');
+    }
 
-## Code of Conduct
+    // Show Product List
+    public function list()
+    {
+        $products = Product::all();
+        return view('products.list', compact('products'));
+    }
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    // Search
+   public function search(Request $request)
+{
+    $query = $request->query('query');
 
-## Security Vulnerabilities
+    $products = Product::where('name', 'LIKE', "%$query%")
+                ->orWhere('description', 'LIKE', "%$query%")
+                ->get();
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    return view('products.search', compact('products', 'query'));
+}
 
-## License
+}
+```
+# Step 7: Create Web.php route
+```php
+<?php
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
+
+Route::get('/', [ProductController::class, 'list'])->name('products.list');
+
+Route::get('/product/create', [ProductController::class, 'create'])->name('products.create');
+Route::post('/product/store', [ProductController::class, 'store'])->name('products.store');
+
+Route::get('/search', [ProductController::class, 'search'])->name('products.search');
+```
+# Step 8: Create Blade file for resource/view/products folder
+# resource/view/products/create.blade.php
+```php
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4">Add New Product</h2>
+
+        <form action="{{ route('products.store') }}" method="POST">
+            @csrf
+
+            <div class="mb-3">
+                <label class="form-label">Product Name</label>
+                <input type="text" name="name" class="form-control" placeholder="Enter product name">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3" placeholder="Write details"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Price (₹)</label>
+                <input type="number" step="0.01" name="price" class="form-control" placeholder="0.00">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Add Product</button>
+
+            <a href="{{ route('products.list') }}" class="btn btn-secondary w-100 mt-3">Back</a>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
+```
+# resource/view/products/list.blade.php
+```php
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>All Products</h2>
+        <a href="{{ route('products.create') }}" class="btn btn-success">+ Add Product</a>
+    </div>
+
+    <form action="{{ route('products.search') }}" method="GET" class="d-flex mb-4">
+        <input type="text" name="query" class="form-control me-2" placeholder="Search products...">
+        <button class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="card shadow p-3">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($products as $p)
+                <tr>
+                    <td>{{ $p->name }}</td>
+                    <td>{{ $p->description }}</td>
+                    <td><b>₹{{ $p->price }}</b></td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
+```
+
+# resource/view/products/search.blade.php
+```php
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+
+    <a href="{{ route('products.list') }}" class="btn btn-secondary mb-3">⬅ Back</a>
+
+    <h2>Search Results for: <span class="text-primary">{{ $query }}</span></h2>
+
+    <div class="card shadow p-3 mt-3">
+
+        @forelse($products as $p)
+            <div class="border rounded p-3 mb-3 bg-white">
+                <h5>{{ $p->name }}</h5>
+                <p>{{ $p->description }}</p>
+                <h6><b>₹{{ $p->price }}</b></h6>
+            </div>
+        @empty
+            <p class="text-danger">No Products Found</p>
+        @endforelse
+
+    </div>
+
+</div>
+
+</body>
+</html>
+```
+# Now Run Server and Paste this Url
+```php
+php artisan serve
+```
+```php
+http://127.0.0.1:8000/product/create
+```
+ 
+ 
+ <img width="1604" height="643" alt="image" src="https://github.com/user-attachments/assets/7ca70b07-631d-4137-9792-9759d27e7d71" />
+
+<img width="1655" height="422" alt="image" src="https://github.com/user-attachments/assets/92384ca7-8836-42e8-8ae3-d0fa31bb9b3e" />
+
+<img width="1618" height="403" alt="image" src="https://github.com/user-attachments/assets/423d3628-2d0f-4871-8b14-8c8b9c133f02" />
+
+
+
+
