@@ -294,11 +294,15 @@ php artisan serve
 ```php
 http://127.0.0.1:8000/product/create
 ```
- 
+#  Create many Product and Show 
  
  <img width="1604" height="643" alt="image" src="https://github.com/user-attachments/assets/7ca70b07-631d-4137-9792-9759d27e7d71" />
 
 <img width="1655" height="422" alt="image" src="https://github.com/user-attachments/assets/92384ca7-8836-42e8-8ae3-d0fa31bb9b3e" />
+
+
+# Search any Product name , price etc.. and after show result 
+
 
 <img width="1618" height="403" alt="image" src="https://github.com/user-attachments/assets/423d3628-2d0f-4871-8b14-8c8b9c133f02" />
 
