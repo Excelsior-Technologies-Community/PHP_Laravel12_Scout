@@ -21,7 +21,7 @@ composer require laravel/scout
 ```php
 php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
 ```
-# config/scout.php open and update this method
+# Open config/scout.php File and Adding  this method
 ```php
 'driver' => 'database',
 ```
