@@ -58,7 +58,7 @@ return new class extends Migration
     }
 };
 ```
-# Step 5: Create Products Model
+# Step 6: Create Products Model
 ```php
 <?php
 
@@ -78,7 +78,7 @@ class Product extends Model
     ];
 }
 ```
-# Step 6: Create Products Controller
+# Step 7: Create Products Controller
 ```php
 <?php
 
@@ -134,7 +134,7 @@ class ProductController extends Controller
 
 }
 ```
-# Step 7: Create Web.php route
+# Step 8: Create Web.php route
 ```php
 <?php
 
@@ -148,7 +148,7 @@ Route::post('/product/store', [ProductController::class, 'store'])->name('produc
 
 Route::get('/search', [ProductController::class, 'search'])->name('products.search');
 ```
-# Step 8: Create Blade file for resource/view/products folder
+# Step 9: Create Blade file for resource/view/products folder
 # resource/view/products/create.blade.php
 ```php
 <!DOCTYPE html>
