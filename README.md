@@ -25,7 +25,7 @@ php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
 ```php
 'driver' => 'database',
 ```
-# Step 5: Create Products Table
+# Step 5: Create Migration File For Table Create 
 ```php
 <?php
 
@@ -58,7 +58,7 @@ return new class extends Migration
     }
 };
 ```
-# Step 6: Create Migration File For Table Create
+# Step 6: Create Model
 ```php
 <?php
 
