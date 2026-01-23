@@ -25,7 +25,11 @@ php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
 ```php
 'driver' => 'database',
 ```
-# Step 5: Create Migration File For Table Create 
+# Step 5: Create Migration File For Products Table Create 
+Run Command For Terminal
+```php
+php artisan make:migration create_products_table
+```
 ```php
 <?php
 
@@ -41,11 +45,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
-             $table->string('name');
+        $table->id();
+        $table->string('name');
         $table->text('description')->nullable();
         $table->decimal('price',10,2);
-            $table->timestamps();
+        $table->timestamps();
         });
     }
 
@@ -58,7 +62,11 @@ return new class extends Migration
     }
 };
 ```
-# Step 6: Create Model
+# Step 6: Create Product Model
+Run Command For Terminal
+```php
+php artisan make:model Product
+```
 ```php
 <?php
 
@@ -79,6 +87,10 @@ class Product extends Model
 }
 ```
 # Step 7: Create Products Controller
+Run Command For Terminal
+```php
+php artisan make:controller ProductController
+```
 ```php
 <?php
 
