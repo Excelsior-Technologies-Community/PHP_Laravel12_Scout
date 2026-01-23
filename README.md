@@ -62,6 +62,10 @@ return new class extends Migration
     }
 };
 ```
+# Run Migration 
+```php
+php artisan migrate
+```
 # Step 6: Create Product Model
 Run Command For Terminal
 ```php
