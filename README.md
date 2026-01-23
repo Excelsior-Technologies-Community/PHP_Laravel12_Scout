@@ -58,7 +58,7 @@ return new class extends Migration
     }
 };
 ```
-# Step 6: Create Products Model
+# Step 6: Create Migration File For Table Create
 ```php
 <?php
 
