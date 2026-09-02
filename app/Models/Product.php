@@ -16,11 +16,17 @@ class Product extends Model
         'price',
     ];
 
+    /**
+     * Scout index name.
+     */
     public function searchableAs()
     {
         return 'products_index';
     }
 
+    /**
+     * Fields available for Scout searching.
+     */
     public function toSearchableArray()
     {
         return [
