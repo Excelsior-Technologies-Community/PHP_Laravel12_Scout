@@ -1,308 +1,824 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Product List</title>
+
+    <title>Product Management</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+        rel="stylesheet">
 
-    <style>
-        .search-wrapper {
-            position: relative;
-        }
-
-        #searchSuggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            display: none;
-        }
-
-        .suggestion-item {
-            display: block;
-            padding: 12px 15px;
-            text-decoration: none;
-            color: #212529;
-            border-bottom: 1px solid #eee;
-        }
-
-        .suggestion-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .suggestion-name {
-            font-weight: 600;
-        }
-
-        .suggestion-price {
-            font-size: 14px;
-            color: #198754;
-        }
-
-        .suggestion-description {
-            font-size: 13px;
-            color: #6c757d;
-        }
-    </style>
 </head>
 
 <body class="bg-light">
 
-<div class="container mt-5">
+    <div class="container-fluid mt-4 px-4">
 
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{-- Success Message --}}
+
+        @if (session('success'))
+
+        <div class="alert alert-success alert-dismissible fade show">
+
             {{ session('success') }}
 
             <button
                 type="button"
                 class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
+                data-bs-dismiss="alert"></button>
+
         </div>
-    @endif
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>All Products</h2>
+        @endif
 
-        <a
-            href="{{ route('products.create') }}"
-            class="btn btn-success"
-        >
-            + Add Product
-        </a>
-    </div>
 
-    <!-- Live Search -->
-    <div class="search-wrapper mb-4">
+        {{-- Header --}}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h2 class="mb-1">
+                    📦 Product Management
+                </h2>
+
+                <small class="text-muted">
+                    Manage products, status, featured products and trash
+                </small>
+
+            </div>
+
+            <div class="d-flex gap-2">
+
+                <a
+                    href="{{ route('products.trash') }}"
+                    class="btn btn-outline-danger">
+                    🗑️ Trash
+                </a>
+
+                <a
+                    href="{{ route('products.create') }}"
+                    class="btn btn-success">
+                    + Add Product
+                </a>
+
+            </div>
+
+        </div>
+
+
+        {{-- Statistics --}}
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-body">
+
+                        <small class="text-muted">
+                            Total Products
+                        </small>
+
+                        <h3>
+                            {{ $statistics['total'] }}
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-body">
+
+                        <small class="text-muted">
+                            Active Products
+                        </small>
+
+                        <h3 class="text-success">
+                            {{ $statistics['active'] }}
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-body">
+
+                        <small class="text-muted">
+                            Inactive Products
+                        </small>
+
+                        <h3 class="text-secondary">
+                            {{ $statistics['inactive'] }}
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-body">
+
+                        <small class="text-muted">
+                            Featured Products
+                        </small>
+
+                        <h3 class="text-warning">
+                            ⭐ {{ $statistics['featured'] }}
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Price Statistics --}}
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-3">
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-body">
+
+                        <small class="text-muted">
+                            Average Price
+                        </small>
+
+                        <h4>
+                            ₹{{ number_format($statistics['average_price'], 2) }}
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-body">
+
+                        <small class="text-muted">
+                            Highest Price
+                        </small>
+
+                        <h4>
+                            ₹{{ number_format($statistics['highest_price'], 2) }}
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-body">
+
+                        <small class="text-muted">
+                            Lowest Price
+                        </small>
+
+                        <h4>
+                            ₹{{ number_format($statistics['lowest_price'], 2) }}
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-body">
+
+                        <small class="text-muted">
+                            Trash
+                        </small>
+
+                        <h4 class="text-danger">
+                            {{ $statistics['trashed'] }}
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Advanced Filters --}}
+
+        <div class="card shadow-sm p-4 mb-4">
+
+            <form
+                method="GET"
+                action="{{ route('products.list') }}">
+
+                <div class="row g-3">
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Search
+                        </label>
+
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            value="{{ request('search') }}"
+                            placeholder="Product name...">
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Min Price
+                        </label>
+
+                        <input
+                            type="number"
+                            name="min_price"
+                            class="form-control"
+                            value="{{ request('min_price') }}"
+                            min="0"
+                            step="0.01">
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Max Price
+                        </label>
+
+                        <input
+                            type="number"
+                            name="max_price"
+                            class="form-control"
+                            value="{{ request('max_price') }}"
+                            min="0"
+                            step="0.01">
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Status
+                        </label>
+
+                        <select
+                            name="status"
+                            class="form-select">
+
+                            <option value="">
+                                All
+                            </option>
+
+                            <option
+                                value="active"
+                                {{ request('status') === 'active' ? 'selected' : '' }}>
+                                Active
+                            </option>
+
+                            <option
+                                value="inactive"
+                                {{ request('status') === 'inactive' ? 'selected' : '' }}>
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-1">
+
+                        <label class="form-label">
+                            Featured
+                        </label>
+
+                        <select
+                            name="featured"
+                            class="form-select">
+
+                            <option value="">
+                                All
+                            </option>
+
+                            <option
+                                value="yes"
+                                {{ request('featured') === 'yes' ? 'selected' : '' }}>
+                                Yes
+                            </option>
+
+                            <option
+                                value="no"
+                                {{ request('featured') === 'no' ? 'selected' : '' }}>
+                                No
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Sort By
+                        </label>
+
+                        <select
+                            name="sort"
+                            class="form-select">
+
+                            <option value="">
+                                Newest
+                            </option>
+
+                            <option
+                                value="oldest"
+                                {{ request('sort') === 'oldest' ? 'selected' : '' }}>
+                                Oldest
+                            </option>
+
+                            <option
+                                value="name_asc"
+                                {{ request('sort') === 'name_asc' ? 'selected' : '' }}>
+                                Name A-Z
+                            </option>
+
+                            <option
+                                value="name_desc"
+                                {{ request('sort') === 'name_desc' ? 'selected' : '' }}>
+                                Name Z-A
+                            </option>
+
+                            <option
+                                value="price_low"
+                                {{ request('sort') === 'price_low' ? 'selected' : '' }}>
+                                Price Low-High
+                            </option>
+
+                            <option
+                                value="price_high"
+                                {{ request('sort') === 'price_high' ? 'selected' : '' }}>
+                                Price High-Low
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-3 d-flex gap-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+                        🔎 Apply Filters
+                    </button>
+
+                    <a
+                        href="{{ route('products.list') }}"
+                        class="btn btn-outline-secondary">
+                        Clear
+                    </a>
+
+                    <a
+                        href="{{ route('products.export', request()->query()) }}"
+                        class="btn btn-outline-success">
+                        📥 Export CSV
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        {{-- Bulk Actions --}}
 
         <form
-            action="{{ route('products.search') }}"
-            method="GET"
-            id="searchForm"
-            class="d-flex"
-        >
+            method="POST"
+            id="bulkForm">
 
-            <input
-                type="text"
-                name="query"
-                id="searchInput"
-                class="form-control me-2"
-                placeholder="Search products..."
-                autocomplete="off"
-            >
+            @csrf
 
-            <button class="btn btn-primary">
-                Search
-            </button>
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-white">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <strong>
+                                Products
+                            </strong>
+
+                            <span class="badge bg-primary">
+                                {{ $products->total() }}
+                            </span>
+
+                        </div>
+
+                        <div class="d-flex gap-2">
+
+                            <button
+                                type="button"
+                                onclick="bulkStatus('active')"
+                                class="btn btn-sm btn-success">
+                                🟢 Active
+                            </button>
+
+                            <button
+                                type="button"
+                                onclick="bulkStatus('inactive')"
+                                class="btn btn-sm btn-secondary">
+                                ⚪ Inactive
+                            </button>
+
+                            <button
+                                type="button"
+                                onclick="bulkDelete()"
+                                class="btn btn-sm btn-danger">
+                                🗑️ Bulk Delete
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th>
+                                    <input
+                                        type="checkbox"
+                                        id="selectAll"
+                                        class="form-check-input">
+                                </th>
+
+                                <th>Name</th>
+
+                                <th>Description</th>
+
+                                <th>Price</th>
+
+                                <th>Status</th>
+
+                                <th>Featured</th>
+
+                                <th>Created</th>
+
+                                <th class="text-center">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @forelse($products as $p)
+
+                            <tr>
+
+                                <td>
+
+                                    <input
+                                        type="checkbox"
+                                        name="product_ids[]"
+                                        value="{{ $p->id }}"
+                                        class="form-check-input product-checkbox">
+
+                                </td>
+
+                                <td>
+
+                                    <strong>
+                                        {{ $p->name }}
+                                    </strong>
+
+                                </td>
+
+                                <td>
+
+                                    {{ \Illuminate\Support\Str::limit(
+    $p->description ?? 'No description',
+    50
+) }}
+
+                                </td>
+
+                                <td>
+
+                                    <strong>
+                                        ₹{{ number_format($p->price, 2) }}
+                                    </strong>
+
+                                </td>
+
+                                <td>
+
+                                    @if($p->status === 'active')
+
+                                    <span class="badge bg-success">
+                                        Active
+                                    </span>
+
+                                    @else
+
+                                    <span class="badge bg-secondary">
+                                        Inactive
+                                    </span>
+
+                                    @endif
+
+                                </td>
+
+                                <td>
+
+                                    @if($p->is_featured)
+
+                                    <span class="badge bg-warning text-dark">
+                                        ⭐ Featured
+                                    </span>
+
+                                    @else
+
+                                    <span class="text-muted">
+                                        —
+                                    </span>
+
+                                    @endif
+
+                                </td>
+
+                                <td>
+
+                                    {{ $p->created_at->format('d M Y') }}
+
+                                </td>
+
+                                <td class="text-center">
+
+                                    <div class="d-flex justify-content-center gap-1 flex-wrap">
+
+                                        <a
+                                            href="{{ route('products.show', $p->id) }}"
+                                            class="btn btn-sm btn-info text-white">
+                                            View
+                                        </a>
+
+                                        <a
+                                            href="{{ route('products.edit', $p->id) }}"
+                                            class="btn btn-sm btn-warning">
+                                            Edit
+                                        </a>
+
+                                        <form
+                                            action="{{ route('products.featured', $p->id) }}"
+                                            method="POST">
+
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button
+                                                class="btn btn-sm btn-outline-warning"
+                                                title="Toggle Featured">
+                                                ⭐
+                                            </button>
+
+                                        </form>
+
+                                        <form
+                                            action="{{ route('products.status', $p->id) }}"
+                                            method="POST">
+
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button
+                                                class="btn btn-sm btn-outline-success"
+                                                title="Toggle Status">
+                                                {{ $p->status === 'active' ? '🔴' : '🟢' }}
+                                            </button>
+
+                                        </form>
+
+                                        <form
+                                            action="{{ route('products.duplicate', $p->id) }}"
+                                            method="POST">
+
+                                            @csrf
+
+                                            <button
+                                                class="btn btn-sm btn-outline-primary"
+                                                title="Duplicate">
+                                                📋
+                                            </button>
+
+                                        </form>
+
+                                        <form
+                                            action="{{ route('products.delete', $p->id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Move this product to trash?')">
+
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button
+                                                class="btn btn-sm btn-danger">
+                                                🗑️
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            @empty
+
+                            <tr>
+
+                                <td
+                                    colspan="8"
+                                    class="text-center py-5">
+
+                                    <h5>
+                                        No Products Found
+                                    </h5>
+
+                                    <p class="text-muted">
+                                        Try changing your filters.
+                                    </p>
+
+                                </td>
+
+                            </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                {{-- Pagination --}}
+
+                <div class="p-3">
+
+                    {{ $products->links() }}
+
+                </div>
+
+            </div>
 
         </form>
 
-        <div id="searchSuggestions"></div>
-
     </div>
 
-    <!-- Product Table -->
-    <div class="card shadow p-3">
 
-        <table class="table table-striped align-middle">
+    <script>
+        document.getElementById('selectAll').addEventListener(
+            'change',
+            function() {
 
-            <thead class="table-dark">
+                document
+                    .querySelectorAll('.product-checkbox')
+                    .forEach(function(checkbox) {
 
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Price (₹)</th>
-                    <th class="text-center">Actions</th>
-                </tr>
+                        checkbox.checked = this.checked;
 
-            </thead>
+                    }, this);
 
-            <tbody>
+            }
+        );
 
-                @forelse($products as $p)
 
-                    <tr>
+        function getSelectedProducts() {
+            return Array.from(
+                document.querySelectorAll(
+                    '.product-checkbox:checked'
+                )
+            ).map(function(checkbox) {
 
-                        <td>
-                            <strong>{{ $p->name }}</strong>
-                        </td>
+                return checkbox.value;
 
-                        <td>
-                            {{ $p->description }}
-                        </td>
-
-                        <td>
-                            <b>₹{{ number_format($p->price, 2) }}</b>
-                        </td>
-
-                        <td class="text-center">
-
-                            <a
-                                href="{{ route('products.show', $p->id) }}"
-                                class="btn btn-sm btn-info text-white"
-                            >
-                                View
-                            </a>
-
-                            <a
-                                href="{{ route('products.edit', $p->id) }}"
-                                class="btn btn-sm btn-warning"
-                            >
-                                Edit
-                            </a>
-
-                            <form
-                                action="{{ route('products.delete', $p->id) }}"
-                                method="POST"
-                                style="display:inline-block"
-                            >
-
-                                @csrf
-                                @method('DELETE')
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Are you sure you want to delete this product?')"
-                                >
-                                    Delete
-                                </button>
-
-                            </form>
-
-                        </td>
-
-                    </tr>
-
-                @empty
-
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">
-                            No products available.
-                        </td>
-                    </tr>
-
-                @endforelse
-
-            </tbody>
-
-        </table>
-
-        <!-- Pagination -->
-        <div class="mt-3">
-            {{ $products->links() }}
-        </div>
-
-    </div>
-
-</div>
-
-<script>
-
-    const searchInput = document.getElementById('searchInput');
-    const suggestionsBox = document.getElementById('searchSuggestions');
-
-    let searchTimer;
-
-    searchInput.addEventListener('input', function () {
-
-        const query = this.value.trim();
-
-        clearTimeout(searchTimer);
-
-        if (query.length < 2) {
-            suggestionsBox.innerHTML = '';
-            suggestionsBox.style.display = 'none';
-            return;
-        }
-
-        searchTimer = setTimeout(() => {
-
-            fetch(
-                `{{ route('products.suggestions') }}?query=${encodeURIComponent(query)}`
-            )
-            .then(response => response.json())
-            .then(products => {
-
-                suggestionsBox.innerHTML = '';
-
-                if (products.length === 0) {
-
-                    suggestionsBox.innerHTML = `
-                        <div class="p-3 text-muted">
-                            No products found.
-                        </div>
-                    `;
-
-                    suggestionsBox.style.display = 'block';
-
-                    return;
-                }
-
-                products.forEach(product => {
-
-                    const item = document.createElement('a');
-
-                    item.href = product.url;
-                    item.className = 'suggestion-item';
-
-                    item.innerHTML = `
-                        <div class="suggestion-name">
-                            ${product.name}
-                        </div>
-
-                        <div class="suggestion-description">
-                            ${product.description ?? ''}
-                        </div>
-
-                        <div class="suggestion-price">
-                            ₹${product.price}
-                        </div>
-                    `;
-
-                    suggestionsBox.appendChild(item);
-                });
-
-                suggestionsBox.style.display = 'block';
-
-            })
-            .catch(error => {
-
-                console.error('Search error:', error);
-
-                suggestionsBox.innerHTML = '';
-
-                suggestionsBox.style.display = 'none';
             });
-
-        }, 300);
-
-    });
-
-    // Hide suggestions when clicking outside
-    document.addEventListener('click', function (event) {
-
-        if (
-            !searchInput.contains(event.target) &&
-            !suggestionsBox.contains(event.target)
-        ) {
-            suggestionsBox.style.display = 'none';
         }
 
-    });
 
-</script>
+        function bulkDelete() {
+            const selected = getSelectedProducts();
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            if (selected.length === 0) {
+
+                alert('Please select at least one product.');
+
+                return;
+            }
+
+            if (!confirm(
+                    'Are you sure you want to move selected products to trash?'
+                )) {
+                return;
+            }
+
+            const form = document.getElementById('bulkForm');
+
+            form.action = "{{ route('products.bulk.delete') }}";
+
+            form.submit();
+        }
+
+
+        function bulkStatus(status) {
+            const selected = getSelectedProducts();
+
+            if (selected.length === 0) {
+
+                alert('Please select at least one product.');
+
+                return;
+            }
+
+            const form = document.getElementById('bulkForm');
+
+            form.action =
+                "{{ route('products.bulk.status') }}";
+
+            const statusInput =
+                document.createElement('input');
+
+            statusInput.type = 'hidden';
+
+            statusInput.name = 'status';
+
+            statusInput.value = status;
+
+            form.appendChild(statusInput);
+
+            form.submit();
+        }
+    </script>
 
 </body>
+
 </html>
