@@ -14,6 +14,13 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'is_featured',
+        'status',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'is_featured' => 'boolean',
     ];
 
     /**
@@ -34,5 +41,21 @@ class Product extends Model
             'description' => $this->description,
             'price' => $this->price,
         ];
+    }
+
+    /**
+     * Scope: Active products.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope: Featured products.
+     */
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
     }
 }
